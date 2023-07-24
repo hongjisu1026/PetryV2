@@ -1,16 +1,18 @@
 package com.dido.petry.controller;
 
+import com.dido.petry.dto.FindPasswordMailDTO;
+import com.dido.petry.dto.FindUsernameDTO;
 import com.dido.petry.dto.RegisterDTO;
 import com.dido.petry.entity.Member;
+import com.dido.petry.service.FindPasswordService;
 import com.dido.petry.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,9 +22,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class MemberController {
     private final MemberService service;
-    private final JavaMailSender mailSender;
-    @Value("${spring.mail.username}")
-    private String from;
+    private final FindPasswordService findPasswordService;
 
     @PostMapping("/register-process")
     public String register(@ModelAttribute RegisterDTO dto) {
@@ -43,29 +43,14 @@ public class MemberController {
     }
 
     @PostMapping("/findUsername")
-    public String findUsername(String iName, String iEmail, Model model) {
-        Member member = service.findUsername(iName, iEmail);
-        String username;
-        boolean result;
+    @ResponseBody
+    public String findUsername(String name, String email) {
+        String username = service.findUsername(name, email);
 
-        if (member == null) {
-            username = null;
-            result = false;
-        } else {
-            username = member.getUsername();
-            result = true;
-        }
-
-        log.info("{}", result);
-
-        model.addAttribute("username", username);
-        model.addAttribute("type", "아이디");
-        model.addAttribute("result", result);
-
-        return "petry/login/login";
+        return username;
     }
 
-    @GetMapping("/findPassword")
+    @PostMapping("/findPassword")
     public @ResponseBody Map<String, Boolean> findPassword(String username, String email) {
         Map<String, Boolean> data = new HashMap<>();
         boolean check = service.findPassword(username, email);
@@ -74,8 +59,12 @@ public class MemberController {
         return data;
     }
 
-    @PostMapping("/findPassword")
-    public void findPasswordSendEmail(String username, String email) {
+    @PostMapping("/sendMail")
+    public String findPasswordSendEmail(String username, String email) throws MessagingException {
+        String tempPassword = findPasswordService.tempPassword();
+        FindPasswordMailDTO dto = findPasswordService.createMailAndChangePassword(username, email, tempPassword);
+        findPasswordService.mailSend(dto, username, tempPassword);
 
+        return "redirect:/login";
     }
 }

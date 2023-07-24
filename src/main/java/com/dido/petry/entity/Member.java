@@ -42,4 +42,8 @@ public class Member {
         this.nickname = nickname;
         this.role = role;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

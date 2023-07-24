@@ -358,14 +358,14 @@
             <form th:action="@{/auth/findUsername}" method="post" id="findIdForm">
                 <input type="text" name="iName" id="iName" placeholder="이름" data-name="이름">
                 <input type="email" name="iEmail" id="iEmail" placeholder="이메일" data-name="이메일">
-                <button type="button" value="찾기" class="submit" id="findUsernameBtn">
+                <button type="button" value="찾기" class="submit" id="findUsernameBtn">찾기</button>
             </form>
         </div>
     </div>
 
     <div class="popup-overlay auth" id="findPwd">
         <div class="findForm">
-            <i class="fa-solid fa-xmark x"></i>
+            <i class="fa-solid fa-xmark"></i>
             <p>비밀번호 찾기</p>
             <form th:action="@{/auth/findPassword}" method="post" id="findPwdForm">
                 <input type="text" name="pUsername" id="pUsername" placeholder="아이디" data-name="아이디">
@@ -379,38 +379,10 @@
     <div class="fail" th:if="${error}">
         <p th:text="${exception}"></p>
     </div>
-
-    <div class="find" th:if="${result}">
-        <div class="findForm">
-            <i class="fa-solid fa-xmark"></i>
-            <p th:text="|${type}는 '${username}'입니다.|"></p>
-        </div>
-    </div>
-
-    <div class="find" th:unless="${result}">
-        <div class="findForm">
-            <i class="fa-solid fa-xmark"></i>
-            <p>존재하지않는 계정정보입니다.</p>
-        </div>
-    </div>
     
 </div>
 
 <script type="text/javascript">
-
-    $('.fa-xmark').click(function () {
-        $('.popup-overlay').removeClass('show');
-        document.getElementsByClassName('find')[0].style.display = 'none';
-        document.getElementsByClassName('find')[1].style.display = 'none';
-    });
-
-    $(document).mouseup(function (e) {
-        const overlay = $('.find');
-        if (overlay.has(e.target).length === 0) {
-            document.getElementsByClassName('find')[0].style.display = 'none';
-            document.getElementsByClassName('find')[1].style.display = 'none';
-        }
-    });
 
     $(document).mouseup(function (e) {
         const overlay = $('.popup-overlay');
@@ -429,12 +401,40 @@
         $(target).addClass('show');
     });
 
+    $('#findUsernameBtn').click(function () {
+        let name = $('#iName').val();
+        let email = $('#iEmail').val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/auth/findUsername',
+            data: {
+                'name' : name,
+                'email' : email
+            },
+            success: function (username) {
+                console.log('username = ' + username);
+                if (username) {
+                    Swal.fire({
+                        text: '고객님의 아이디는 \'' + username + '\'입니다.'
+                    }).then((OK) => {
+                        if (OK) window.location = '/login';
+                    });
+                } else {
+                    Swal.fire({
+                        text: '존재하지않는 계정정보입니다.'
+                    });
+                }
+            }
+        });
+    });
+
     $('#findPasswordBtn').click(function () {
         let username = $('#pUsername').val();
         let email = $('#pEmail').val();
 
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: "/auth/findPassword",
             data: {
                 "username" : username,
@@ -450,7 +450,7 @@
                         if (OK) {
                             $.ajax({
                                 type: "POST",
-                                url: "/auth/findPassword",
+                                url: "/auth/sendMail",
                                 data: {
                                     "username" : username,
                                     "email" : email
@@ -460,7 +460,9 @@
                         }
                     });
                 } else {
-                    $('#pText').html('존재하지않는 계정정보입니다.');
+                    Swal.fire({
+                        text: '존재하지않는 계정정보입니다.'
+                    });
                 }
             }
         });

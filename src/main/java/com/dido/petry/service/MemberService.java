@@ -1,5 +1,6 @@
 package com.dido.petry.service;
 
+import com.dido.petry.dto.FindUsernameDTO;
 import com.dido.petry.dto.RegisterDTO;
 import com.dido.petry.entity.Member;
 import com.dido.petry.repository.MemberRepository;
@@ -24,8 +25,11 @@ public class MemberService {
     }
 
     @Transactional
-    public Member findUsername(String name, String email) {
-        return repository.findByNameAndEmail(name, email);
+    public String findUsername(String name, String email) {
+        Member member = repository.findByNameAndEmail(name, email);
+        String username = null;
+        if (member != null) username = member.getUsername();
+        return username;
     }
 
     @Transactional
