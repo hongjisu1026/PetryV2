@@ -487,25 +487,25 @@
 </head>
 
 <body>
-<form method="post">
+<form method="post" th:action="@{|/diary/edit/${diary.id}|}">
     <div class="wrapper">
         <div class="header">
             <div class="logo">
-                <input type="image" id="logo" src="./assets/logo.png" th:src="@{/assets/logo.png}" formaction="main.do">
+                <input type="image" th:src="@{/assets/logo.png}" id="logo" th:onclick="|location.href='@{/}'|">
             </div>
             <div class="menu-wrapper">
                 <i class="fa-solid fa-bars menu-ic"><a href="#menu"></a></i>
                 <div class="overlay" id="menu">
                     <div class="menu">
-                        <a href="./diaryList.do" class="menu-ic-wrapper">
+                        <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-book-bookmark"></i>
                             <p>다이어리</p>
                         </a>
-                        <a href="./album.do" class="menu-ic-wrapper">
+                        <a th:href="@{/album}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-image"></i>
                             <p>앨범</p>
                         </a>
-                        <a href="./setting.jsp" class="menu-ic-wrapper">
+                        <a th:href="@{/setting}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-gear"></i>
                             <p>설정</p>
                         </a>
@@ -514,15 +514,14 @@
             </div>
         </div>
         <div class="content-wrapper">
-            <input type="text" id="dId" name="dId" value="${dId}" style="display: none">
             <div class="input-wrapper">
                 <div class="title">
-                    <input type="text" id="diaryTitle" name="diaryTitle" value="${dTitle}">
+                    <input type="text" id="diaryTitle" name="diaryTitle" th:value="${diary.diaryTitle}">
                 </div>
                 <div class="content">
-                    <textarea id="diaryContent" name="diaryContent">${dContent}</textarea>
+                    <textarea id="diaryContent" name="diaryContent" th:text="${diary.diaryContent}"></textarea>
                 </div>
-                <input type="submit" class="submit" value="작성" formaction="editDiary.do">
+                <input type="submit" class="submit" value="수정">
             </div>
         </div>
     </div>

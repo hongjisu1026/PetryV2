@@ -406,7 +406,7 @@
         let email = $('#iEmail').val();
 
         $.ajax({
-            type: 'POST',
+            type: 'GET',
             url: '/auth/findUsername',
             data: {
                 'name' : name,
@@ -440,8 +440,8 @@
                 "username" : username,
                 "email" : email
             },
-            success: function (result) {
-                if (result['check']) {
+            success: function (check) {
+                if (check) {
                     Swal.fire({
                         icon: 'success',
                         title: '발송 완료',

@@ -377,21 +377,21 @@
             <div class="header">
                 <div class="logo">
                     <form method="post">
-                        <input type="image" src="./assets/logo.png" th:src="@{/assets/logo.png}" formaction="main.do" id="logo">
+                        <input type="image" th:src="@{/assets/logo.png}" id="logo" th:onclick="|location.href='@{/}'|">
                     </form>
                 </div>
                 <div class="menu-wrapper">
                     <i class="fa-solid fa-bars menu-ic"></i>
                     <div class="menu">
-                        <a href="./diaryList.do" class="menu-ic-wrapper">
+                        <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-book-bookmark"></i>
                             <p>다이어리</p>
                         </a>
-                        <a href="./album.do" class="menu-ic-wrapper">
+                        <a th:href="@{/album}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-image"></i>
                             <p>앨범</p>
                         </a>
-                        <a href="setting.html" class="menu-ic-wrapper">
+                        <a th:href="@{/setting}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-gear"></i>
                             <p>설정</p>
                         </a>
@@ -400,7 +400,7 @@
             </div>
             <form action="profileList.do" method="post">
                 <div class="content-wrapper">
-                    <a href="profile.html"><i class="fa-solid fa-plus"></i></a>
+                    <a th:href="@{/profile/profile}"><i class="fa-solid fa-plus"></i></a>
                     <div class="profiles">
                         <c:forEach var="profile" items="${profile}" varStatus="status">
                             <div class="profile-wrapper">

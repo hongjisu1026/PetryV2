@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/8908bd1bc0.js" crossorigin="anonymous"></script>
     <script src="./js/jquery.js" th:src="@{/script/jquery.js}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}">
     <link rel="icon" href="./assets/favicon.png" th:href="@{/assets/favicon.png}">
     <title>Petry</title>
@@ -348,11 +350,11 @@
             font-size: 1.5em;
         }
 
-        #edit input {
+        #confirm input {
             margin: auto;
         }
 
-        #edit input[type="submit"] {
+        #confirm input[type="submit"] {
             width: 305px;
             margin: 10px;
         }
@@ -367,35 +369,37 @@
 </head>
 
 <body>
-<form method="post">
-    <input type="submit" id="temp">
-    <div class="wrapper">
-        <div class="header">
-            <div class="logo">
-                <input type="image" src="./assets/logo.png" th:src="@{/assets/logo.png}" formaction="main.do" id="logo">
-            </div>
-            <div class="menu-wrapper">
-                <i class="fa-solid fa-bars menu-ic"></i>
-                <div class="menu">
-                    <a href="./diaryList.do" class="menu-ic-wrapper">
-                        <i class="fa-solid fa-book-bookmark"></i>
-                        <p>다이어리</p>
-                    </a>
-                    <a href="./album.do" class="menu-ic-wrapper">
-                        <i class="fa-solid fa-image"></i>
-                        <p>앨범</p>
-                    </a>
-                    <a href="./setting.jsp" class="menu-ic-wrapper">
-                        <i class="fa-solid fa-gear"></i>
-                        <p>설정</p>
-                    </a>
-                </div>
+
+<input type="submit" id="temp">
+<div class="wrapper">
+    <div class="header">
+        <div class="logo">
+            <input type="image" th:src="@{/assets/logo.png}" id="logo" th:onclick="|location.href='@{/}'|">
+        </div>
+
+        <div class="menu-wrapper">
+            <i class="fa-solid fa-bars menu-ic"></i>
+            <div class="menu">
+                <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <p>다이어리</p>
+                </a>
+                <a th:href="@{/album}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-image"></i>
+                    <p>앨범</p>
+                </a>
+                <a th:href="@{/setting}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-gear"></i>
+                    <p>설정</p>
+                </a>
             </div>
         </div>
+    </div>
+    <form method="post">
         <div class="content-wrapper">
             <ul>
-                <li><a href="./profileList.do">프로필</a></li>
-                <li><a onclick="editPopup()">정보 수정</a></li>
+                <li><a th:href="@{/profile/profileList}">프로필</a></li>
+                <li><a id="modifyBtn">정보 수정</a></li>
                 <li><a th:href="@{/auth/logout-process}" id="logoutBtn">로그아웃</a></li>
                 <li><a href="#delete" onclick="deletePopup()">회원 탈퇴</a></li>
             </ul>
@@ -403,23 +407,23 @@
         <div class="popup-overlay" id="delete">
             <div class="confirm">
                 <p>정말 탈퇴하시겠습니까?</p>
-                <input type="submit" id="deleteBtn" class="submit" formaction="delete.do" value="예">
+                <input type="button" id="deleteBtn" class="submit" value="예">
                 <input type="button" value="아니오" id="no" class="submit">
             </div>
         </div>
-        <div class="popup-overlay" id="edit">
+        <div class="popup-overlay" id="confirm">
             <div class="confirm">
                 <p>비밀번호 확인</p>
                 <i class="fa-solid fa-xmark"></i>
-                <input type="password" id="check_pwd" name="check_pwd" placeholder="비밀번호 입력">
-                <input type="submit" class="submit" value="확인" formaction="moveEdit.do">
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="비밀번호 입력">
+                <input type="button" class="submit" id="confirmBtn" value="확인">
             </div>
         </div>
-    </div>
-    <div class="footer">
-        <p>ⓒ petry</p>
-    </div>
-</form>
+    </form>
+</div>
+<div class="footer">
+    <p>ⓒ petry</p>
+</div>
 
 <script type="text/javascript">
     $('.menu-ic').click(function (e) {
@@ -434,8 +438,8 @@
         $('#delete').addClass('show');
     }
 
-    function editPopup() {
-        $('#edit').addClass('show');
+    function confirmPopup() {
+        $('#confirm').addClass('show');
     }
 
     $('#no').click(function () {
@@ -452,6 +456,66 @@
             overlay.removeClass('show');
         }
     });
+
+    $('#deleteBtn').click(function () {
+        confirmPopup();
+        $('#confirmBtn').click(function () {
+            let password = $('#confirmPassword').val();
+            $.ajax({
+                type: 'GET',
+                url: "/auth/matchPassword",
+                data: {
+                    'password': password
+                },
+                success: function (result) {
+                    $('.popup-overlay').removeClass('show');
+                    if (result) {
+                        Swal.fire({
+                            title: '탈퇴 완료',
+                            text: '탈퇴가 완료되었습니다.'
+                        }).then((OK) => {
+                            if (OK) {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/auth/delete'
+                                });
+                                window.location = '/login';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: '탈퇴 실패',
+                            text: '비밀번호가 일치하지 않습니다. 확인 후 다시 시도해 주세요'
+                        });
+                    }
+                }
+            });
+        });
+    });
+
+    $('#modifyBtn').click(function () {
+        confirmPopup();
+        $('#confirmBtn').click(function () {
+            let password = $('#confirmPassword').val();
+            $.ajax({
+                type: 'GET',
+                url: '/auth/matchPassword',
+                data: {
+                    'password': password
+                },
+                success: function (result) {
+                    $('.popup-overlay').removeClass('show');
+                    if (result) {
+                        window.location = '/modify'
+                    } else {
+                        Swal.fire({
+                            text: '비밀번호가 일치하지 않습니다. 확인 후 다시 시도해 주세요'
+                        });
+                    }
+                }
+            })
+        })
+    })
 </script>
 </body>
 

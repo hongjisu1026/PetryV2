@@ -362,7 +362,7 @@
             <i class="fa-solid fa-bars menu-ic"><a href="#menu"></a></i>
             <div class="overlay" id="menu">
                 <div class="menu">
-                    <a th:href="@{/diaryList}" class="menu-ic-wrapper">
+                    <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
                         <i class="fa-solid fa-book-bookmark"></i>
                         <p>다이어리</p>
                     </a>
@@ -399,11 +399,9 @@
         </form>
         <div class="img-wrapper">
             <div class="center">
-                <c:forEach var="current" items="${current}">
-                    <div class="img">
-                        <img src="/LoadCurrentCommand?aName=${current}">
-                    </div>
-                </c:forEach>
+                <div class="img" th:each="currentImage: ${currentImage}">
+                    <img th:src="@{|/upload/diary/${currentImage.diaryImageName}|}">
+                </div>
             </div>
         </div>
     </div>

@@ -166,6 +166,9 @@
 
         body {
             font-family: 'Cafe24SsurroundAir';
+        }
+
+        .wrapper {
             min-height: calc(100vh - 100px);
         }
 
@@ -258,16 +261,13 @@
             line-height: 100px;
         }
 
-        #temp {
-            display: none;
-        }
-
 
         .detail-wrapper {
             width: calc(100vw - 80px);
             height: calc(100vh - 250px);
             overflow: auto;
             padding: 30px;
+            margin: auto;
         }
 
         .detail {
@@ -311,15 +311,17 @@
             width: 50px;
             height: 50px;
             cursor: pointer;
+            color: #F2C8B0;
+            font-weight: bolder;
+            font-size: 3em;
+            background-color: rgba(255, 255, 255, 0);
         }
 
         .slick-prev {
-            background: url(./static/assets/icon/circle-chevron-left-solid.svg) no-repeat;
             left: 10px;
         }
 
         .slick-next {
-            background: url(./static/assets/icon/circle-chevron-right-solid.svg) no-repeat;
             right: 10px;
         }
 
@@ -336,8 +338,8 @@
 
         .diary-menu {
             display: none;
+            width: 300px;
             position: absolute;
-            width: 150px;
             border: 1px solid #F2C8B0;
             padding: 20px;
             border-radius: 5px;
@@ -355,7 +357,6 @@
             color: #F2C8B0;
             padding: 5px 10px;
             text-decoration: none;
-            vertical-align: middle;
         }
 
         .submit-diary-menu:hover {
@@ -423,27 +424,26 @@
     </style>
 </head>
 
-<body onload="ff(${dId}, '${diaryImg}')">
-<form method="post">
+<body>
     <div class="wrapper">
         <div class="header">
             <div class="logo">
-                <input type="image" id="logo" src="./assets/logo.png" th:src="@{/assets/logo.png}" formaction="main.do">
+                <input type="image" th:src="@{/assets/logo.png}" id="logo" th:onclick="|location.href='@{/}'|">
             </div>
 
             <div class="menu-wrapper">
                 <i class="fa-solid fa-bars menu-ic"><a href="#menu"></a></i>
                 <div class="overlay" id="menu">
                     <div class="menu">
-                        <a href="./diaryList.do" class="menu-ic-wrapper">
+                        <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-book-bookmark"></i>
                             <p>다이어리</p>
                         </a>
-                        <a href="./album.do" class="menu-ic-wrapper">
+                        <a th:href="@{/album}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-image"></i>
                             <p>앨범</p>
                         </a>
-                        <a href="./setting.jsp" class="menu-ic-wrapper">
+                        <a th:href="@{/setting}" class="menu-ic-wrapper">
                             <i class="fa-solid fa-gear"></i>
                             <p>설정</p>
                         </a>
@@ -456,24 +456,27 @@
                 <div class="diary-menu-wrapper">
                     <i class="fa-solid fa-ellipsis"></i>
                     <div class="diary-menu" id="diaryMenu">
-                        <a id="edit" href="javascript:void(0)" class="submit-diary-menu">수정</a>
+                        <a id="list" th:href="@{/diary/diaryList}" class="submit-diary-menu">목록으로</a>
+                        <a id="edit" th:href="@{|/diary/edit/${diary.id}|}" class="submit-diary-menu">수정</a>
                         <a href="#confirm" class="submit-diary-menu">삭제</a>
                     </div>
                 </div>
-                <p id="detailTitle">${dTitle}</p>
+                <p id="detailTitle" th:text="${diary.diaryTitle}"></p>
                 <div class="img-wrapper">
                     <div class="detail-img">
-
+                        <div class="img" th:each="diaryImage: ${diaryImage}">
+                            <img th:src="@{|/upload/diary/${diaryImage.diaryImageName}|}"/>
+                        </div>
                     </div>
                 </div>
-                <p id="detailContent">${dContent}</p>
+                <p id="detailContent" th:text="${diary.diaryContent}"></p>
             </div>
         </div>
         <div class="popup-overlay" id="confirm">
             <div class="confirm">
                 <i class="fa-solid fa-xmark"></i>
                 <p>정말 삭제하시겠습니까?</p>
-                <a class="submit" id="delete">예</a>
+                <a class="submit" id="delete" th:href="@{|/diary/delete/${diary.id}|}">예</a>
                 <input type="button" value="아니오" id="no" class="submit">
             </div>
         </div>
@@ -481,7 +484,6 @@
     <div class="footer">
         <p>ⓒ petry</p>
     </div>
-</form>
 <script type="text/javascript">
 
     $('.menu-ic').click(function (e) {
@@ -513,6 +515,10 @@
         }
     });
 
+    $('#no').click(function () {
+        $('.popup-overlay').removeClass('show');
+    });
+
 
 
     $(document).on("click", ".submit-diary-menu", function () {
@@ -523,26 +529,19 @@
     $('#no').click(function () {
         $('.popup-overlay').removeClass('show');
     });
-    
 
-    function ff(dId, diaryImg) {
-        document.getElementById('edit').href = "./moveEditDiary.do?dId=" + dId;
-        document.getElementById('delete').href = "./deleteDiary.do?dId=" + dId;
-
-        let list = diaryImg.split(" ");
-        let html = '';
-        for (let i = 0; i < list.length - 1; i++) {
-            html += '<div class=\"img\"><img src=\"/LoadDiaryImageCommand?dId=' + dId +'&aName=' + list[i] + '\"></div>';
-        }
-
-        $('.detail-img').html(html);
-
-        $('.detail-img').slick({
-            arrows: true,
-            prevArrow: "<button type='button' class='slick-prev'>&nbsp;</button>",
-            nextArrow: "<button type='button' class='slick-next'>&nbsp;</button>",
-        });
-    }
+    $('.detail-img').slick({
+        infinite: true,
+        speed: 500,
+        fade: true,
+        cssEase: 'linear',
+        autoplay: true,
+        arrows: true,
+        prevArrow: "<button type='button' class='slick-prev'><</button>",
+        nextArrow: "<button type='button' class='slick-next'>></button>",
+        autoplaySpeed: 5000,
+        speed: 500
+    });
     
 </script>
 </body>

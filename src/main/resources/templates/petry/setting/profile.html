@@ -399,96 +399,97 @@
 </head>
 
 <body>
-    <form method="post" enctype="multipart/form-data">
-        <div class="wrapper">
-            <div class="header">
-                <div class="logo">
-                    <input type="image" src="./assets/logo.png" th:src="@{/assets/logo.png}" formaction="main.do" id="logo">
-                </div>
-                <div class="menu-wrapper">
-                    <i class="fa-solid fa-bars menu-ic"></i>
-                    <div class="menu">
-                        <a href="./diaryList.do" class="menu-ic-wrapper">
-                            <i class="fa-solid fa-book-bookmark"></i>
-                            <p>다이어리</p>
-                        </a>
-                        <a href="./album.do" class="menu-ic-wrapper">
-                            <i class="fa-solid fa-image"></i>
-                            <p>앨범</p>
-                        </a>
-                        <a href="setting.html" class="menu-ic-wrapper">
-                            <i class="fa-solid fa-gear"></i>
-                            <p>설정</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="content-wrapper">
-                <div class="item-wrapper">
-                    <div class="inputs-wrapper">
-                        <div class="input-wrapper">
-                            <label for="pName">이름</label>
-                            <input type="text" name="pName" id="pName">
-                        </div>
-                        <div class="input-wrapper">
-                            <label for="pBirth">생년월일</label>
-                            <input type="text" name="pBirth" id="pBirth">
-                        </div>
-                        <div class="input-wrapper">
-                            <div class="radio-wrapper">
-                                <input type="radio" value="♂" name="pSex" id="male">
-                                <label for="male" class="label">남자 ♂</label>
-                            </div>
-                            <div class="radio-wrapper">
-                                <input type="radio" value="♀" name="pSex" id="female">
-                                <label for="female" class="label">여자 ♀</label>
-                            </div>
-                        </div>
-                        <div class="input-wrapper">
-                            <input type="file" name="pImg" id="pImg" accept=".png, .jpeg, .jpg" value="">
-                        </div>
-                        <div class="input-wrapper">
-                            <input type="submit" value="등록하기" class="submit" formaction="profile.do">
-                        </div>
-                    </div>
-                </div>
-                <div class="item-wrapper">
-                    <div class="img-wrapper">
-                        <img id="prevImg">
-                    </div>
-                </div>
+<div class="wrapper">
+    <div class="header">
+        <div class="logo">
+            <input type="image" th:src="@{/assets/logo.png}" id="logo" th:onclick="|location.href='@{/}'|"/>
+        </div>
+        <div class="menu-wrapper">
+            <i class="fa-solid fa-bars menu-ic"></i>
+            <div class="menu">
+                <a th:href="@{/diary/diaryList?page=0}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <p>다이어리</p>
+                </a>
+                <a th:href="@{/album}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-image"></i>
+                    <p>앨범</p>
+                </a>
+                <a th:href="@{/setting}" class="menu-ic-wrapper">
+                    <i class="fa-solid fa-gear"></i>
+                    <p>설정</p>
+                </a>
             </div>
         </div>
-        <div class="footer">
-            <p>ⓒ petry</p>
+    </div>
+    <form method="post" th:action="@{/profile/profile}" enctype="multipart/form-data">
+        <div class="content-wrapper">
+            <div class="item-wrapper">
+                <div class="inputs-wrapper">
+                    <div class="input-wrapper">
+                        <label for="profileName">이름</label>
+                        <input type="text" name="profileName" id="profileName">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="profileBirth">생년월일</label>
+                        <input type="text" name="profileBirth" id="profileBirth">
+                    </div>
+                    <div class="input-wrapper">
+                        <div class="radio-wrapper">
+                            <input type="radio" value="♂" name="profileSex" id="male">
+                            <label for="male" class="label">남자 ♂</label>
+                        </div>
+                        <div class="radio-wrapper">
+                            <input type="radio" value="♀" name="profileSex" id="female">
+                            <label for="female" class="label">여자 ♀</label>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="file" name="profileImage" id="profileImage" accept=".png, .jpeg, .jpg" >
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="submit" value="등록하기" class="submit">
+                    </div>
+                </div>
+            </div>
+            <div class="item-wrapper">
+                <div class="img-wrapper">
+                    <img id="prevImg">
+                </div>
+            </div>
         </div>
     </form>
-    <script type="text/javascript">
-        $('.menu-ic').click(function (e) {
-            e.stopPropagation();
-            $('.menu').toggle();
-        });
-        $(document).click(function () {
-            $('.menu').hide();
-        });
+</div>
+<div class="footer">
+    <p>ⓒ petry</p>
+</div>
 
-        function readImg(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('prevImg').src = e.target.result;
-                }
+<script type="text/javascript">
+    $('.menu-ic').click(function (e) {
+        e.stopPropagation();
+        $('.menu').toggle();
+    });
+    $(document).click(function () {
+        $('.menu').hide();
+    });
 
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                document.getElementById('prevImg').src = '';
+    function readImg(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('prevImg').src = e.target.result;
             }
-        }
 
-        document.getElementById('pImg').addEventListener("change", e => {
-            readImg(e.target);
-        });
-    </script>
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            document.getElementById('prevImg').src = '';
+        }
+    }
+
+    document.getElementById('pImg').addEventListener("change", e => {
+        readImg(e.target);
+    });
+</script>
 </body>
 
 </html>
